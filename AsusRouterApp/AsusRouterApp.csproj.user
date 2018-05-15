@@ -6,9 +6,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <AppxShowAllApps>False</AppxShowAllApps>
-    <AppxPackageIsForStore>True</AppxPackageIsForStore>
-    <AppxBuildConfigurationSelection>x86|x64|arm</AppxBuildConfigurationSelection>
-    <PackageOptionalProjectsInIdeBuilds>False</PackageOptionalProjectsInIdeBuilds>
+    <AppxPackageIsForStore>False</AppxPackageIsForStore>
+    <AppxBuildConfigurationSelection>x64</AppxBuildConfigurationSelection>
+    <PackageOptionalProjectsInIdeBuilds>True</PackageOptionalProjectsInIdeBuilds>
     <Source>C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\Assets\icon\device\icon_repeater.png</Source>
     <SmallTileSource>C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\Assets\icon\device\icon_repeater.png</SmallTileSource>
     <MediumTileSource>C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\Assets\icon\device\icon_repeater.png</MediumTileSource>
