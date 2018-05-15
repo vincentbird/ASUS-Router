@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Resources;
 using Windows.System.Threading;
 using Windows.UI;
 using Windows.UI.Xaml.Media;
@@ -40,19 +41,72 @@ namespace AsusRouterApp.Class
 
                 public AccentColor()
                 {
-                    accentColor = Edi.UWP.Helpers.UI.GetAccentColor();
+                    try
+                    {
+                        accentColor = Edi.UWP.Helpers.UI.GetAccentColor();
+                    }
+                    catch (Exception)
+                    {
+                        accentColor = Colors.Gray;
+                    }
                     updateSpan = TimeSpan.FromMilliseconds(1000);
                     updateTimer = ThreadPoolTimer.CreatePeriodicTimer(TimerEvent,updateSpan);
                 }
 
                 private void TimerEvent(ThreadPoolTimer timer)
                 {
-                    var temp = Edi.UWP.Helpers.UI.GetAccentColor();
-                    if(temp!=accentColor)
+                    try
                     {
-                        accentColor = temp;
-                        AccentColorChanged?.Invoke(accentColor);
+                        var temp = Edi.UWP.Helpers.UI.GetAccentColor();
+                        if (temp != accentColor)
+                        {
+                            accentColor = temp;
+                            AccentColorChanged?.Invoke(accentColor);
+                        }
                     }
+                    catch (Exception)
+                    {
+                        
+                    }
+                }
+            }
+        }
+
+        public static class AppResources
+        {
+            private static ResourceLoader CurrentResourceLoader
+            {
+                get { return _loader ?? (_loader = ResourceLoader.GetForCurrentView("Resources")); }
+            }
+
+            private static ResourceLoader _loader;
+            private static readonly Dictionary<string, string> ResourceCache = new Dictionary<string, string>();
+
+            public static string GetString(string key)
+            {
+                string s;
+                if (ResourceCache.TryGetValue(key, out s))
+                {
+                    return s;
+                }
+                else
+                {
+                    s = CurrentResourceLoader.GetString(key);
+                    ResourceCache[key] = s;
+                    return s;
+                }
+            }
+
+
+
+            /// <summary>
+            /// AppName
+            /// </summary>
+            public static string AppName
+            {
+                get
+                {
+                    return CurrentResourceLoader.GetString("AppName");
                 }
             }
         }

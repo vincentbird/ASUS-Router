@@ -9,6 +9,7 @@ using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -25,7 +26,12 @@ namespace AsusRouterApp
     /// </summary>
     sealed partial class App : Application
     {
+        //人脉启动标识
         public static bool ContactStart = false;
+        public static bool DemoAccount = false;
+        //调试窗口
+        public static CoreApplicationView debugView;
+        public static Frame debugFrame;
 
         /// <summary>
         /// 初始化单一实例应用程序对象。这是执行的创作代码的第一行，
@@ -44,6 +50,25 @@ namespace AsusRouterApp
         /// <param name="e">有关启动请求和过程的详细信息。</param>
         protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
+#if DEBUG
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                /*
+                this.DebugSettings.EnableFrameRateCounter = false;
+                debugView = CoreApplication.CreateNewView();
+                int id = 0;
+                await debugView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    debugFrame = new Frame();
+                    debugFrame.Navigate(typeof(DebugPage), null);
+                    Window.Current.Content = debugFrame;
+                    Window.Current.Activate();
+                    id = ApplicationView.GetForCurrentView().Id;
+                });
+                bool viewShown = await ApplicationViewSwitcher.TryShowAsStandaloneAsync(id);
+                */
+            }
+#endif
             Frame rootFrame = Window.Current.Content as Frame;
 
             // 不要在窗口已包含内容时重复应用程序初始化，
@@ -59,7 +84,6 @@ namespace AsusRouterApp
                 {
                     //TODO: 从之前挂起的应用程序加载状态
                 }
-
                 // 将框架放在当前窗口中
                 Window.Current.Content = rootFrame;
             }
@@ -147,7 +171,6 @@ namespace AsusRouterApp
 
         private void ApplyColorToTitleBar()
         {
-            //标题栏
             CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
             ApplicationViewTitleBar titleBar = ApplicationView.GetForCurrentView().TitleBar;
             titleBar.ButtonBackgroundColor = Colors.Transparent;

@@ -363,9 +363,9 @@
                     <MenuFlyout Placement="Right">
                         <MenuFlyoutItem TabIndex="0" Tag="{Binding}" Click="ClientMenuFlyoutClick" Text="{Binding ip}"/>
                         <MenuFlyoutItem TabIndex="1" Tag="{Binding}" Click="ClientMenuFlyoutClick" Text="{Binding mac}"/>
-                        <MenuFlyoutItem TabIndex="2" Tag="{Binding}" Click="ClientMenuFlyoutClick" Text="编辑"/>
-                        <MenuFlyoutItem TabIndex="3" Tag="{Binding}" Click="ClientMenuFlyoutClick" Text="允许/禁用 互联网访问"/>
-                        <MenuFlyoutItem Visibility="Collapsed" TabIndex="4" Tag="{Binding}" Click="ClientMenuFlyoutClick" Text="带宽限定"/>
+                        <MenuFlyoutItem TabIndex="2" Tag="{Binding}" Click="ClientMenuFlyoutClick" x:Uid="EditMenu"/>
+                        <MenuFlyoutItem TabIndex="3" Tag="{Binding}" Click="ClientMenuFlyoutClick" x:Uid="InternetAccess"/>
+                        <MenuFlyoutItem Visibility="Collapsed" TabIndex="4" Tag="{Binding}" Click="ClientMenuFlyoutClick" x:Uid="BandWidth"/>
                     </MenuFlyout>
                 </Button.Flyout>
                 <Grid>
@@ -389,16 +389,14 @@
                             <Image Grid.Column="1" Width="30" Height="30" Source="{Binding netTypeImage}"/>
                         </Grid>
                         <StackPanel Grid.Row="1" Orientation="Horizontal">
-                            <TextBlock Foreground="DarkViolet" Text="{Binding ip}"/>
-                            <TextBlock>
+                            <TextBlock Foreground="Black" Text="{Binding ip}"/>
+                            <TextBlock Visibility="{Binding speedVisibility}">
                             <Run Text=" "/>
-                            <Run Foreground="Red" Text="&#xE898;" FontFamily="Segoe MDL2 Assets"/>
-                            <Run Foreground="Red" Text="{Binding rate.rx,Mode=OneWay}"/>
-                            <Run Foreground="Red" Text="KB/s"/>
+                            <Run Foreground="Black" Text="&#xE898;" FontFamily="Segoe MDL2 Assets"/>
+                            <Run Foreground="Black" Text="{Binding speed.downloadSpeed_str,Mode=OneWay}" FontWeight="Bold"/>
                             <Run Text=" "/>
-                            <Run Foreground="Green" Text="&#xE896;" FontFamily="Segoe MDL2 Assets"/>
-                            <Run Foreground="Green" Text="{Binding rate.tx,Mode=OneWay}"/>
-                            <Run Foreground="Green" Text="KB/s"/>
+                            <Run Foreground="Black" Text="&#xE896;" FontFamily="Segoe MDL2 Assets"/>
+                            <Run Foreground="Black" Text="{Binding speed.uploadSpeed_str,Mode=OneWay}" FontWeight="Bold"/>
                             <Run Text=" "/>
                             </TextBlock>
                         </StackPanel>
@@ -415,13 +413,12 @@
                             <RowDefinition />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <TextBlock x:Name="TextBlock" Grid.Row="0"
-                            Text="更改无线设置会暂时中断无线网络，是否继续？" VerticalAlignment="Center" />
+                        <TextBlock x:Name="TextBlock" Grid.Row="0" x:Uid="WiFiSettingChanged" VerticalAlignment="Center" />
 
                         <StackPanel x:Name="ButtonsStackPanel" Grid.Row="1"
                             Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button x:Name="YesButton" Click="SaveWiFiYes_Clicked" Content="确定" Width="150" Height="30" />
-                            <Button x:Name="NoButton" Click="SaveWiFiNo_Clicked" Content="取消" Width="150" Height="30" Margin="10 0 0 0" />
+                            <Button x:Name="YesButton" x:Uid="NotificationOK" Click="SaveWiFiYes_Clicked" Width="150" Height="30" />
+                            <Button x:Name="NoButton" x:Uid="NotificationCancel" Click="SaveWiFiNo_Clicked" Width="150" Height="30" Margin="10 0 0 0" />
                         </StackPanel>
                     </Grid>
                 </Grid>
@@ -435,13 +432,12 @@
                             <RowDefinition />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <TextBlock x:Name="TextBlock" Grid.Row="0"
-                            Text="重启这台路由器，是否继续？" VerticalAlignment="Center" />
+                        <TextBlock x:Name="TextBlock" Grid.Row="0" x:Uid="RebootRouter" VerticalAlignment="Center" />
 
                         <StackPanel x:Name="ButtonsStackPanel" Grid.Row="1"
                             Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button x:Name="YesButton" Click="RebootYes_Clicked" Content="确定" Width="150" Height="30" />
-                            <Button x:Name="NoButton" Click="SaveWiFiNo_Clicked" Content="取消" Width="150" Height="30" Margin="10 0 0 0" />
+                            <Button x:Name="YesButton" x:Uid="NotificationOK" Click="RebootYes_Clicked" Width="150" Height="30" />
+                            <Button x:Name="NoButton" x:Uid="NotificationCancel" Click="SaveWiFiNo_Clicked" Width="150" Height="30" Margin="10 0 0 0" />
                         </StackPanel>
                     </Grid>
                 </Grid>
@@ -464,10 +460,10 @@
         <Grid x:Name="topGrid" Margin="0,45,0,0" Background="{x:Bind brushMainPage.topGrid,Mode=TwoWay}" Grid.Row="0" Height="50" VerticalAlignment="Top">
             <Button x:Name="menuopenBtn" Width="50" Height="50" Background="{x:Null}" VerticalAlignment="Bottom">
                 <Button.Flyout>
-                    <MenuFlyout Placement="Bottom">
-                        <MenuFlyoutItem Click="LoadDataBtn_Click" Text="导入数据"/>
-                        <MenuFlyoutItem Click="ExportDataBtn_Click" Text="导出数据"/>
-                        <MenuFlyoutItem Click="LoginOutBtn_Click" Text="注销"/>
+                    <MenuFlyout x:Name="menuFlyout" Placement="Bottom">
+                        <MenuFlyoutItem x:Uid="LoadData" Click="LoadDataBtn_Click"/>
+                        <MenuFlyoutItem x:Uid="ExportData" Click="ExportDataBtn_Click"/>
+                        <MenuFlyoutItem x:Uid="LoginOut" Click="LoginOutBtn_Click"/>
                     </MenuFlyout>
                 </Button.Flyout>
                 <FontIcon Foreground="{ThemeResource TextColor}" Margin="-10,-6" Width="50" Height="50" FontFamily="Segoe MDL2 Assets" Glyph="&#xE700;"/>
@@ -489,7 +485,7 @@
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
                     <SymbolIcon Margin="3" Height="40" Width="40" Symbol="Home"/>
-                    <TextBlock Grid.Row="1" Text="主页" HorizontalAlignment="Center"/>
+                    <TextBlock x:Uid="TopBtn1" Grid.Row="1" HorizontalAlignment="Center"/>
                 </Grid>
             </Button>
             <Button Grid.Column="1" TabIndex="1" Style="{StaticResource TopBtnUnSelected}" Click="TopBtn_Click" Background="{x:Null}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -499,7 +495,7 @@
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
                     <SymbolIcon Margin="3" Height="40" Width="40" Symbol="GoToStart"/>
-                    <TextBlock Grid.Row="1" Text="设备" HorizontalAlignment="Center"/>
+                    <TextBlock x:Uid="TopBtn2" Grid.Row="1" HorizontalAlignment="Center"/>
                 </Grid>
             </Button>
             <Button Grid.Column="2" TabIndex="2" Style="{StaticResource TopBtnUnSelected}" Click="TopBtn_Click" Background="{x:Null}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -509,7 +505,7 @@
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
                     <SymbolIcon Margin="3" Height="40" Width="40" Symbol="FourBars"/>
-                    <TextBlock Grid.Row="1" Text="无线网络" HorizontalAlignment="Center"/>
+                    <TextBlock x:Uid="TopBtn3" Grid.Row="1" HorizontalAlignment="Center"/>
                 </Grid>
             </Button>
             <Button Grid.Column="3" TabIndex="3" Style="{StaticResource TopBtnUnSelected}" Click="TopBtn_Click" Background="{x:Null}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -519,7 +515,7 @@
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
                     <SymbolIcon Margin="3" Height="40" Width="40" Symbol="More"/>
-                    <TextBlock Grid.Row="1" Text="更多" HorizontalAlignment="Center"/>
+                    <TextBlock x:Uid="TopBtn1" Grid.Row="1" HorizontalAlignment="Center"/>
                 </Grid>
             </Button>
         </Grid>
@@ -538,16 +534,16 @@
                             <Button x:Name="grid_waninfo" Click="WANInfoBtn_Click" Background="{x:Bind brushMainPage.wanInfoGrid,Mode=TwoWay}" Style="{StaticResource ButtonStyle1}" Grid.Row="0" Margin="20" Padding="20" VerticalAlignment="Top" HorizontalAlignment="Stretch">
                                 <StackPanel Margin="10">
                                     <TextBlock Margin="5" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center">
-                                    <Run Text="路由器型号："/>
+                                    <Run x:Uid="RouterModel"/>
                                     <Run x:Name="textBlock_model"/>
                                     </TextBlock>
                                     <TextBlock Margin="5" x:Name="textBlock_devName" FontSize="25" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
                                     <TextBlock Margin="5" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center">
-                                        <Run Text="外网IP："/>
+                                        <Run x:Uid="PublicNetIP"/>
                                         <Run x:Name="textBlock_ipAdd"/>
                                     </TextBlock>
                                     <TextBlock Margin="5" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center">
-                                        <Run Text="外网状态："/>
+                                        <Run x:Uid="NetStatus"/>
                                         <Run x:Name="textBlock_state"/>
                                     </TextBlock>
                                     <TextBlock Margin="5" x:Name="textBlock_ddns" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
@@ -565,12 +561,10 @@
                                         <TextBlock Margin="5" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center">
                                         <Run Text="&#xE898;" FontFamily="Segoe MDL2 Assets"/>
                                         <Run x:Name="textBlock_rateWAN_tx"/>
-                                        <Run Text="KB/s"/>
                                         </TextBlock>
                                         <TextBlock Margin="5" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center">
                                         <Run Text="&#xE896;" FontFamily="Segoe MDL2 Assets"/>
                                         <Run x:Name="textBlock_rateWAN_rx"/>
-                                        <Run Text="KB/s"/>
                                         </TextBlock>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Margin="5" Height="100" Background="{x:Bind brushMainPage.rateInfoGrid2,Mode=TwoWay}">
@@ -578,12 +572,10 @@
                                         <TextBlock Margin="5" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center">
                                         <Run Text="&#xE898;" FontFamily="Segoe MDL2 Assets"/>
                                         <Run x:Name="textBlock_rate5G_tx"/>
-                                        <Run Text="KB/s"/>
                                         </TextBlock>
                                         <TextBlock Margin="5" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center">
                                         <Run Text="&#xE896;" FontFamily="Segoe MDL2 Assets"/>
                                         <Run x:Name="textBlock_rate5G_rx"/>
-                                        <Run Text="KB/s"/>
                                         </TextBlock>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Margin="5" Height="100" Background="{x:Bind brushMainPage.rateInfoGrid3,Mode=TwoWay}">
@@ -591,12 +583,10 @@
                                         <TextBlock Margin="5" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center">
                                         <Run Text="&#xE898;" FontFamily="Segoe MDL2 Assets"/>
                                         <Run x:Name="textBlock_rate2G_tx"/>
-                                        <Run Text="KB/s"/>
                                         </TextBlock>
                                         <TextBlock Margin="5" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center">
                                         <Run Text="&#xE896;" FontFamily="Segoe MDL2 Assets"/>
                                         <Run x:Name="textBlock_rate2G_rx"/>
-                                        <Run Text="KB/s"/>
                                         </TextBlock>
                                     </StackPanel>
                                 </Grid>
@@ -609,19 +599,19 @@
                                     </Grid.ColumnDefinitions>
                                     <Button Style="{StaticResource ButtonStyle1}" Background="{x:Bind brushMainPage.clientStateGrid,Mode=TwoWay}" Click="ClientBtn_Click" Grid.Column="0" Margin="5" Height="100">
                                         <StackPanel>
-                                            <TextBlock Margin="3" Text="客户端状态" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
+                                            <TextBlock Margin="3" x:Uid="ClientStatus" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
                                             <TextBlock Margin="3" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center">
-                                            <Run FontSize="13" Text="无线 "/>
+                                            <Run FontSize="13" x:Uid="WirelessDevNum"/>
                                             <Run x:Name="textBlock_wlNum" FontSize="20" FontWeight="Bold"/>
                                             </TextBlock>
                                             <TextBlock Margin="3" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center">
-                                            <Run FontSize="13" Text="有线 "/>
+                                            <Run FontSize="13" x:Uid="LanDevNum"/>
                                             <Run x:Name="textBlock_lanNum"  FontSize="20" FontWeight="Bold"/>
                                             </TextBlock>
                                         </StackPanel>
                                     </Button>
                                     <StackPanel Grid.Column="1" Margin="5" Height="100" Background="{x:Bind brushMainPage.sysStateGrid,Mode=TwoWay}">
-                                        <TextBlock Margin="3" Text="系统监控" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
+                                        <TextBlock Margin="3" x:Uid="SysStatus" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
                                         <TextBlock Margin="3" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center">
                                             <Run FontSize="13" Text="CPU "/>
                                             <Run x:Name="textBlock_cpu" FontSize="20" FontWeight="Bold"/>
@@ -629,7 +619,7 @@
                                         </TextBlock>
                                         <ProgressBar x:Name="progress_cpu" Value="0" Foreground="#FF43F028"/>
                                         <TextBlock Margin="3" Foreground="{ThemeResource TextColor}" HorizontalAlignment="Center">
-                                            <Run FontSize="13" Text="内存 "/>
+                                            <Run FontSize="13" x:Uid="MemStatus"/>
                                             <Run x:Name="textBlock_mem" FontSize="20" FontWeight="Bold"/>
                                             <Run FontSize="20" Text="%"/>
                                         </TextBlock>
@@ -749,19 +739,19 @@
                                 </ListViewItem>
                                 <ListViewItem>
                                     <Grid>
-                                        <TextBlock Text="无线网络名称" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        <TextBlock x:Uid="WirelessNetName" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                         <TextBox Foreground="{ThemeResource TextColor}" HorizontalAlignment="Right" Width="150" Text="{Binding wl0_ssid,Mode=TwoWay}"/>
                                     </Grid>
                                 </ListViewItem>
                                 <ListViewItem FontFamily="Segoe UI">
                                     <Grid>
-                                        <TextBlock Text="密码" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="Segoe UI"/>
+                                        <TextBlock x:Uid="WirelessNetPwd" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="Segoe UI"/>
                                         <TextBox Foreground="{ThemeResource TextColor}" HorizontalAlignment="Right" Width="150" Text="{Binding wl0_wpa_psk,Mode=TwoWay}"/>
                                     </Grid>
                                 </ListViewItem>
                                 <ListViewItem>
                                     <Grid>
-                                        <TextBlock Text="显示二维码" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        <TextBlock x:Uid="WirelessNetQr" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                     </Grid>
                                 </ListViewItem>
                                 <ListViewItem>
@@ -777,25 +767,25 @@
                                 </ListViewItem>
                                 <ListViewItem>
                                     <Grid>
-                                        <TextBlock Text="无线网络名称" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        <TextBlock x:Uid="WirelessNetName" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                         <TextBox Foreground="{ThemeResource TextColor}" HorizontalAlignment="Right" Width="150" Text="{Binding wl1_ssid,Mode=TwoWay}"/>
                                     </Grid>
                                 </ListViewItem>
                                 <ListViewItem>
                                     <Grid>
-                                        <TextBlock Text="密码" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        <TextBlock x:Uid="WirelessNetPwd" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                         <TextBox Foreground="{ThemeResource TextColor}" HorizontalAlignment="Right" Width="150" Text="{Binding wl1_wpa_psk,Mode=TwoWay}"/>
                                     </Grid>
                                 </ListViewItem>
                                 <ListViewItem>
                                     <Grid>
-                                        <TextBlock Text="显示二维码" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        <TextBlock x:Uid="WirelessNetQr" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                     </Grid>
                                 </ListViewItem>
                                 <ListViewItem>
                                     <Grid>
                                         <Button Click="SaveWifiBtn_Click" Foreground="{ThemeResource TextColor}" Style="{StaticResource ButtonStyle1}" Background="{ThemeResource MainThemeColor}">
-                                            <TextBlock Margin="10" Text="保存" HorizontalAlignment="Center"/>
+                                            <TextBlock Margin="10" x:Uid="WirelessNetSave" HorizontalAlignment="Center"/>
                                         </Button>
                                     </Grid>
                                 </ListViewItem>
@@ -816,49 +806,49 @@
                             </ListView.ItemContainerStyle>
                             <ListViewItem>
                                 <Grid>
-                                    <TextBlock Text="信息" Foreground="{ThemeResource MainThemeColor}" FontWeight="Bold"/>
+                                    <TextBlock x:Uid="Info" Foreground="{ThemeResource MainThemeColor}" FontWeight="Bold"/>
                                 </Grid>
                             </ListViewItem>
                             <ListViewItem>
                                 <Grid>
-                                    <TextBlock Text="型号" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                                    <TextBlock Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Right" Width="150" Text="{Binding model}"/>
+                                    <TextBlock x:Uid="InfoModel" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Right" Width="150" Text="{Binding model}"/>
                                 </Grid>
                             </ListViewItem>
                             <ListViewItem>
                                 <Grid>
-                                    <TextBlock Text="MAC地址" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                                    <TextBlock Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Right" Width="150" Text="{Binding mac}"/>
+                                    <TextBlock x:Uid="InfoMAC" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Right" Width="150" Text="{Binding mac}"/>
                                 </Grid>
                             </ListViewItem>
                             <ListViewItem>
                                 <Grid>
-                                    <TextBlock Text="外网IP" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                                    <TextBlock Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Right" Width="150" Text="{Binding ipaddr}"/>
+                                    <TextBlock x:Uid="InfoPublicNetIP" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Right" Width="150" Text="{Binding ipaddr}"/>
                                 </Grid>
                             </ListViewItem>
                             <ListViewItem>
                                 <Grid>
-                                    <TextBlock Text="内网IP" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                                    <TextBlock Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Right" Width="150" Text="192.168.1.1"/>
+                                    <TextBlock x:Uid="InfoLanIP" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Right" Width="150" Text="192.168.1.1"/>
                                 </Grid>
                             </ListViewItem>
                             <ListViewItem>
                                 <Grid>
-                                    <TextBlock Text="DDNS" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                                    <TextBlock Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Right" Width="150" Text="{Binding ddns}"/>
+                                    <TextBlock x:Uid="InfoDDNS" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Right" Width="150" Text="{Binding ddns}"/>
                                 </Grid>
                             </ListViewItem>
                             <ListViewItem>
                                 <Grid>
-                                    <TextBlock Text="状态" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                                    <TextBlock Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Right" Width="150" Text="{Binding statusstr}"/>
+                                    <TextBlock x:Uid="InfoStatus" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextColor}" FontWeight="Bold" HorizontalAlignment="Right" Width="150" Text="{Binding statusstr}"/>
                                 </Grid>
                             </ListViewItem>
                             <ListViewItem>
                                 <Grid>
                                     <Button Click="RebootBtn_Click" Foreground="{ThemeResource TextColor}" Style="{StaticResource ButtonStyle1}" Background="{ThemeResource MainThemeColor}">
-                                        <TextBlock Margin="10" Text="重启" HorizontalAlignment="Center"/>
+                                        <TextBlock Margin="10" x:Uid="Reboot" HorizontalAlignment="Center"/>
                                     </Button>
                                 </Grid>
                             </ListViewItem>
@@ -866,7 +856,7 @@
                     </ScrollViewer>
                 </PivotItem>
             </Pivot>
-            <controls:InAppNotification x:Name="notification" Background="{ThemeResource SystemControlAcrylicWindowBrush}" BorderBrush="{ThemeResource MainThemeColor}"/>
+            <controls:InAppNotification x:Name="notification" BorderBrush="{ThemeResource MainThemeColor}"/>
             <controls:InAppNotification x:Name="notificationError" Background="#FFFF5656" BorderBrush="{ThemeResource MainThemeColor}"/>
         </Grid>
     </Grid>

@@ -41,20 +41,25 @@ namespace AsusRouterApp.Class
         
         public class NetRate
         {
-            public long internet_rx
+            public string INTERNET_rx { get; set; }
+            public string INTERNET_tx { get; set; }
+            public string WIRELESS0_rx { get; set; }
+            public string WIRELESS0_tx { get; set; }
+            public string WIRELESS1_rx { get; set; }
+            public string WIRELESS1_tx { get; set; }
+
+            public long int_rx
             {
                 get
                 {
-                    if (INTERNET_rx == null || INTERNET_rx.Length == 0) return -1;
                     return Convert.ToInt64(INTERNET_rx, 16);
                 }
             }
 
-            public long internet_tx
+            public long int_tx
             {
                 get
                 {
-                    if (INTERNET_tx == null || INTERNET_tx.Length == 0) return -1;
                     return Convert.ToInt64(INTERNET_tx, 16);
                 }
             }
@@ -63,7 +68,6 @@ namespace AsusRouterApp.Class
             {
                 get
                 {
-                    if (WIRELESS0_rx == null || WIRELESS0_rx.Length == 0) return -1;
                     return Convert.ToInt64(WIRELESS0_rx, 16);
                 }
             }
@@ -72,7 +76,6 @@ namespace AsusRouterApp.Class
             {
                 get
                 {
-                    if (WIRELESS0_tx == null || WIRELESS0_tx.Length == 0) return -1;
                     return Convert.ToInt64(WIRELESS0_tx, 16);
                 }
             }
@@ -81,7 +84,6 @@ namespace AsusRouterApp.Class
             {
                 get
                 {
-                    if (WIRELESS1_rx == null || WIRELESS1_rx.Length == 0) return -1;
                     return Convert.ToInt64(WIRELESS1_rx, 16);
                 }
             }
@@ -90,17 +92,92 @@ namespace AsusRouterApp.Class
             {
                 get
                 {
-                    if (WIRELESS1_tx == null || WIRELESS1_tx.Length == 0) return -1;
                     return Convert.ToInt64(WIRELESS1_tx, 16);
                 }
             }
+        }
 
-            public string INTERNET_rx { get; set; }
-            public string INTERNET_tx { get; set; }
-            public string WIRELESS0_rx { get; set; }
-            public string WIRELESS0_tx { get; set; }
-            public string WIRELESS1_rx { get; set; }
-            public string WIRELESS1_tx { get; set; }
+        public class NetSpeed
+        {
+            public double downloadSpeed_wan { get; set; } = 0;
+            public double uploadSpeed_wan { get; set; } = 0;
+
+            public double downloadSpeed_wl2g { get; set; } = 0;
+            public double uploadSpeed_wl2g { get; set; } = 0;
+
+            public double downloadSpeed_wl5g { get; set; } = 0;
+            public double uploadSpeed_wl5g { get; set; } = 0;
+
+            public string downloadSpeed_wan_str { get; set; } = "";
+            public string uploadSpeed_wan_str { get; set; } = "";
+
+            public string downloadSpeed_wl2g_str { get; set; } = "";
+            public string uploadSpeed_wl2g_str { get; set; } = "";
+
+            public string downloadSpeed_wl5g_str { get; set; } = "";
+            public string uploadSpeed_wl5g_str { get; set; } = "";
+
+            private long[][] prev = new long[][]
+            {
+                new long[] { -1,-1},
+                new long[] { -1,-1},
+                new long[] { -1,-1}
+            };
+
+            private long timestamp = DateTime.Now.CurrentTimeMillis();
+
+            public void Update(NetRate c)
+            {
+                if(prev[0][0]!=-1&&prev[0][1]!=-1)
+                {
+                    downloadSpeed_wan = (((c.int_rx < prev[0][0]) ? (c.int_rx + (0xFFFFFFFF - prev[0][0])) : (c.int_rx - prev[0][0])) / 1024.0 / (DateTime.Now.CurrentTimeMillis() - timestamp) * 1000.0);
+                    uploadSpeed_wan = (((c.int_tx < prev[0][1]) ? (c.int_tx + (0xFFFFFFFF - prev[0][1])) : (c.int_tx - prev[0][1])) / 1024.0 / (DateTime.Now.CurrentTimeMillis() - timestamp) * 1000.0);
+                }
+                prev[0][0] = c.int_rx;
+                prev[0][1] = c.int_tx;
+                if (downloadSpeed_wan < 1024)
+                    downloadSpeed_wan_str = Math.Ceiling(downloadSpeed_wan) + " KB/s";
+                else
+                    downloadSpeed_wan_str = (downloadSpeed_wan/1024).ToString("f2")+" MB/s";
+                if (uploadSpeed_wan < 1024)
+                    uploadSpeed_wan_str = Math.Ceiling(uploadSpeed_wan) + " KB/s";
+                else
+                    uploadSpeed_wan_str = (uploadSpeed_wan / 1024).ToString("f2") + " MB/s";
+
+                if (prev[1][0] != -1 && prev[1][1] != -1)
+                {
+                    downloadSpeed_wl2g = (((c.wl2g_rx < prev[1][0]) ? (c.wl2g_rx + (0xFFFFFFFF - prev[1][0])) : (c.wl2g_rx - prev[1][0])) / 1024.0 / (DateTime.Now.CurrentTimeMillis() - timestamp) * 1000.0);
+                    uploadSpeed_wl2g = (((c.wl2g_tx < prev[1][1]) ? (c.wl2g_tx + (0xFFFFFFFF - prev[1][1])) : (c.wl2g_tx - prev[1][1])) / 1024.0 / (DateTime.Now.CurrentTimeMillis() - timestamp) * 1000.0);
+                }
+                prev[1][0] = c.wl2g_rx;
+                prev[1][1] = c.wl2g_tx;
+                if (downloadSpeed_wl2g < 1024)
+                    downloadSpeed_wl2g_str = Math.Ceiling(downloadSpeed_wl2g) + " KB/s";
+                else
+                    downloadSpeed_wl2g_str = (downloadSpeed_wl2g / 1024).ToString("f2") + " MB/s";
+                if (uploadSpeed_wl2g < 1024)
+                    uploadSpeed_wl2g_str = Math.Ceiling(uploadSpeed_wl2g) + " KB/s";
+                else
+                    uploadSpeed_wl2g_str = (uploadSpeed_wl2g / 1024).ToString("f2") + " MB/s";
+
+                if (prev[2][0] != -1 && prev[2][1] != -1)
+                {
+                    downloadSpeed_wl5g = (((c.wl5g_rx < prev[2][0]) ? (c.wl5g_rx + (0xFFFFFFFF - prev[2][0])) : (c.wl5g_rx - prev[2][0])) / 1024.0 / (DateTime.Now.CurrentTimeMillis() - timestamp) * 1000.0);
+                    uploadSpeed_wl5g = (((c.wl5g_tx < prev[2][1]) ? (c.wl5g_tx + (0xFFFFFFFF - prev[2][1])) : (c.wl5g_tx - prev[2][1])) / 1024.0 / (DateTime.Now.CurrentTimeMillis() - timestamp) * 1000.0);
+                }
+                prev[2][0] = c.wl5g_rx;
+                prev[2][1] = c.wl5g_tx;
+                if (downloadSpeed_wl5g < 1024)
+                    downloadSpeed_wl5g_str = Math.Ceiling(downloadSpeed_wl5g) + " KB/s";
+                else
+                    downloadSpeed_wl5g_str = (downloadSpeed_wl5g / 1024).ToString("f2") + " MB/s";
+                if (uploadSpeed_wl5g < 1024)
+                    uploadSpeed_wl5g_str = Math.Ceiling(uploadSpeed_wl5g) + " KB/s";
+                else
+                    uploadSpeed_wl5g_str = (uploadSpeed_wl5g / 1024).ToString("f2") + " MB/s";
+
+                timestamp = DateTime.Now.CurrentTimeMillis();
+            }
         }
 
         public class WLANInfo
@@ -319,7 +396,7 @@ namespace AsusRouterApp.Class
                 public bool isWL { get; set; }
                 public NetType netType { get; set; }
                 public WlanInfo wlanInfo { get; set; }
-                public DeviceRate rate { get; set; }
+                public ClientNetSpeed speed { get; set; }
 
                 public DeviceType deviceType { get; set; } = DeviceType.Unknown_Wired;
                 public bool isBan { get; set; } = false;
@@ -421,14 +498,18 @@ namespace AsusRouterApp.Class
                     }
                 }
 
+                public Visibility speedVisibility { get; set; } = Visibility.Collapsed;
+
                 public void UpdateRate(DeviceRate rate)
                 {
-                    this.rate = new DeviceRate()
-                    {
-                        rx=rate.rx / 1024 / 1024,
-                        tx=rate.tx / 1024 / 1024
-                    };
-                    RaisePropertyChanged("rate");
+                    if (this.speed == null) this.speed = new ClientNetSpeed();
+                    this.speed.Update(rate);
+                    if (this.speed.downloadSpeed > 100 || this.speed.uploadSpeed > 100)
+                        speedVisibility = Visibility.Visible;
+                    else
+                        speedVisibility = Visibility.Collapsed;
+                    RaisePropertyChanged("speed");
+                    RaisePropertyChanged("speedVisibility");
                 }
 
                 public void UpdateBanState(string[] banList)
@@ -458,6 +539,39 @@ namespace AsusRouterApp.Class
             {
                 public string isWL { get; set; }
                 public string rssi { get; set; }
+            }
+
+            public class ClientNetSpeed
+            {
+                public double downloadSpeed { get; set; } = 0;
+                public double uploadSpeed { get; set; } = 0;
+
+                public string downloadSpeed_str { get; set; } = "";
+                public string uploadSpeed_str { get; set; } = "";
+
+                private long[] prev = new long[] { -1, -1 };
+
+                private long timestamp = DateTime.Now.CurrentTimeMillis();
+
+                public void Update(DeviceRate c)
+                {
+                    if (prev[0] != -1 && prev[1] != -1)
+                    {
+                        downloadSpeed = (((c.rx < prev[0]) ? (c.rx + (0xFFFFFFFF - prev[0])) : (c.rx - prev[0])) / 1024.0 / (DateTime.Now.CurrentTimeMillis() - timestamp) * 1000.0);
+                        uploadSpeed = (((c.tx < prev[1]) ? (c.tx + (0xFFFFFFFF - prev[1])) : (c.tx - prev[1])) / 1024.0 / (DateTime.Now.CurrentTimeMillis() - timestamp) * 1000.0);
+                    }
+                    prev[0] = c.rx;
+                    prev[1] = c.tx;
+                    if (downloadSpeed < 1024)
+                        downloadSpeed_str = Math.Ceiling(downloadSpeed) + " KB/s";
+                    else
+                        downloadSpeed_str = (downloadSpeed / 1024).ToString("f2") + " MB/s";
+                    if (uploadSpeed < 1024)
+                        uploadSpeed_str = Math.Ceiling(uploadSpeed) + " KB/s";
+                    else
+                        uploadSpeed_str = (uploadSpeed / 1024).ToString("f2") + " MB/s";
+                    timestamp = DateTime.Now.CurrentTimeMillis();
+                }
             }
 
             public List<ClientInGroup> GetGroup()

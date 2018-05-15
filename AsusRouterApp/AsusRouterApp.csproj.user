@@ -6,5 +6,23 @@
   </PropertyGroup>
   <PropertyGroup>
     <AppxShowAllApps>False</AppxShowAllApps>
+    <AppxPackageIsForStore>True</AppxPackageIsForStore>
+    <AppxBuildConfigurationSelection>x86|x64|arm</AppxBuildConfigurationSelection>
+    <PackageOptionalProjectsInIdeBuilds>False</PackageOptionalProjectsInIdeBuilds>
+    <Source>C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\Assets\icon\device\icon_repeater.png</Source>
+    <SmallTileSource>C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\Assets\icon\device\icon_repeater.png</SmallTileSource>
+    <MediumTileSource>C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\Assets\icon\device\icon_repeater.png</MediumTileSource>
+    <WideTileSource>C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\Assets\icon\device\icon_repeater.png</WideTileSource>
+    <LargeTileSource>C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\Assets\icon\device\icon_repeater.png</LargeTileSource>
+    <AppIconSource>C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\Assets\icon\device\icon_repeater.png</AppIconSource>
+    <SplashScreenSource>C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\Assets\icon\device\icon_repeater.png</SplashScreenSource>
+    <PackageLogoSource>C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\Assets\icon\device\icon_repeater.png</PackageLogoSource>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
+    <DeviceId>30F105C9-681E-420b-A277-7C086EAD8A4E</DeviceId>
+    <UseEmulator>true</UseEmulator>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DoNotLaunchApp>false</DoNotLaunchApp>
   </PropertyGroup>
 </Project>

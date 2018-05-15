@@ -33,11 +33,12 @@ namespace AsusRouterApp
 
         public string pwd { get; set; } = "";
 
-        public LoginPageBrush pageBrush = new LoginPageBrush();
+        public LoginPageBrush pageBrush;
 
         public LoginPage()
         {
             this.InitializeComponent();
+            pageBrush = new LoginPageBrush(this);
         }
 
         /// <summary>
@@ -50,12 +51,12 @@ namespace AsusRouterApp
 
             public Utils.UI.AccentColor accentColor;
 
-            public LoginPageBrush()
+            public LoginPageBrush(Page page)
             {
                 accentColor = new Utils.UI.AccentColor();
                 accentColor.AccentColorChanged += async (value) =>
                 {
-                    await DispatcherHelper.ExecuteOnUIThreadAsync(() =>
+                    await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal,() =>
                     {
                         if (Windows.Foundation.Metadata.ApiInformation.IsTypePresent("Windows.UI.Xaml.Media.AcrylicBrush"))
                         {
@@ -96,17 +97,17 @@ namespace AsusRouterApp
         {
             if(!host.Contains("http"))
             {
-                notificationError.Show("地址错误");
+                notificationError.Show(Utils.AppResources.GetString("HostError"));
                 return;
             }
             if (user.Length==0)
             {
-                notificationError.Show("请输入账号");
+                notificationError.Show(Utils.AppResources.GetString("NullUserName"));
                 return;
             }
             if (pwd.Length == 0)
             {
-                notificationError.Show("请输入密码");
+                notificationError.Show(Utils.AppResources.GetString("NullPassword"));
                 return;
             }
             RouterAPI.Url.Host = host;
@@ -114,7 +115,7 @@ namespace AsusRouterApp
             if (loginRes)
                 this.Frame.Navigate(typeof(MainPage), null);
             else
-                notificationError.Show("登录失败", 2000);
+                notificationError.Show(Utils.AppResources.GetString("LoginFailure"), 2000);
         }
     }
 }

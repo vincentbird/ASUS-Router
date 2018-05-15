@@ -45,6 +45,14 @@ namespace AsusRouterApp.Class
         {
             try
             {
+                if(user=="test"&&pwd=="test")
+                {
+                    Setting.SetSetting("auth", "test");
+                    App.DemoAccount = true;
+                    return true;
+                }
+                else
+                    App.DemoAccount = false;
                 Setting.SetSetting("auth", Convert.ToBase64String(Encoding.UTF8.GetBytes(user + ":" + pwd)));
                 return await Login();
             }
@@ -65,6 +73,13 @@ namespace AsusRouterApp.Class
             try
             {
                 string auth = (string)Setting.GetSetting("auth","");
+                if (auth == "test")
+                {
+                    App.DemoAccount = true;
+                    return true;
+                }
+                else
+                    App.DemoAccount = false;
                 if (auth == null || auth.Length == 0) return false;
                 KeyValuePair<string, string>[] header = new KeyValuePair<string, string>[1] {
                 new KeyValuePair<string, string>("Authorization","Basic "+auth)
@@ -139,7 +154,9 @@ namespace AsusRouterApp.Class
         {
             try
             {
-                var info = await AppGet<Model.CpuMemInfo>(@"cpu_usage(appobj);memory_usage(appobj);");
+                //var info = await AppGet<Model.CpuMemInfo>(@"cpu_usage(appobj);memory_usage(appobj);");
+                string json = await AppGet(@"cpu_usage(appobj);memory_usage(appobj);");
+                Model.CpuMemInfo info = JsonConvert.DeserializeObject<Model.CpuMemInfo>(json);
                 return info;
             }
             catch (Exception e)
@@ -193,6 +210,10 @@ namespace AsusRouterApp.Class
             }
         }
 
+        /// <summary>
+        /// 获取路由器及公网信息
+        /// </summary>
+        /// <returns></returns>
         public static async Task<Model.WANInfo> GetWANinfo()
         {
             return await AppGet<Model.WANInfo>(@"nvram_get(model);nvram_get(daapd_friendly_name);nvram_get(0:macaddr);nvram_get(ddns_hostname_x);wanlink(status);wanlink(statusstr);wanlink(ipaddr);wanlink(dns);");

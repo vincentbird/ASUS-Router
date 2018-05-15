@@ -37,23 +37,11 @@ namespace AsusRouterApp
 
         ThreadPoolTimer updateTimer;
 
-        public Model.WANInfo wanInfo;
-
-        public Model.NetRate netRate;
-
-        public Model.CpuMemInfo cpuMemInfo;
-
-        public Model.Client clients;
-
-        public Dictionary<string, Model.DeviceRate> devRate;
-
         public List<Model.Client.ClientInGroup> clientGroup;
 
-        public Model.WLANInfo wlanInfo;
+        public MainPageData data;
 
-        public string[] banList;
-
-        public MainPageBrush brushMainPage = new MainPageBrush();
+        public MainPageBrush brushMainPage;
 
         /// <summary>
         /// Fluent Design System兼容方案
@@ -75,12 +63,12 @@ namespace AsusRouterApp
 
             public Utils.UI.AccentColor accentColor;
 
-            public MainPageBrush()
+            public MainPageBrush(CoreDispatcher dispatcher)
             {
                 accentColor = new Utils.UI.AccentColor();
                 accentColor.AccentColorChanged +=async (value) =>
                 {
-                    await DispatcherHelper.ExecuteOnUIThreadAsync(() =>
+                    await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
                         if (Windows.Foundation.Metadata.ApiInformation.IsTypePresent("Windows.UI.Xaml.Media.AcrylicBrush"))
                         {
@@ -142,7 +130,7 @@ namespace AsusRouterApp
         public MainPage()
         {
             this.InitializeComponent();
-            UI_Init();
+            brushMainPage = new MainPageBrush(this.Dispatcher);
         }
 
         /// <summary>
@@ -157,14 +145,31 @@ namespace AsusRouterApp
             grid_cpu.Visibility = Visibility.Collapsed;
             //Contact启动隐藏顶部栏
             if (App.ContactStart) topGrid.Visibility = Visibility.Collapsed;
+
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                var menu = new MenuFlyoutItem();
+                menu.Text = "Export Demo Data";
+                menu.Click +=async (s, e) =>
+                {
+                    if (data != null)
+                    {
+                        var res=await data.ExportDemoData();
+                        if (res)
+                            notification.Show("Export Demo Data Success");
+                        else
+                            notification.Show("Export Demo Data Failed");
+                    }
+                };
+                menuFlyout.Items.Add(menu);
+            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if(e.NavigationMode==NavigationMode.New)
-            {
-                InitUpdateTheard();
-            }
+            UI_Init();
+            InitUpdateTheard();
+            this.NavigationCacheMode = NavigationCacheMode.Enabled;
         }
 
         /// <summary>
@@ -176,16 +181,29 @@ namespace AsusRouterApp
             {
                 updateSpan = TimeSpan.FromSeconds(2);
                 updateTimer = ThreadPoolTimer.CreatePeriodicTimer(async (source)=> {
-                    if(wanInfo==null)wanInfo=await RouterAPI.GetWANinfo();
-                    netRate = await RouterAPI.GetNetRate();
-                    cpuMemInfo = await RouterAPI.GetCpuMemInfo();
-                    clients = await RouterAPI.GetClients();
-                    devRate=await RouterAPI.GetDeviceRate();
-                    banList =await RouterAPI.FireWall.GetBanList();
-                    if (wlanInfo == null) wlanInfo = await RouterAPI.GetWLANInfo();
-                     await Dispatcher.RunAsync(CoreDispatcherPriority.High,() =>{
-                        UpdateUI();
-                    });
+                    if (App.DemoAccount)
+                    {
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.High,async () => {
+                            data = await MainPageData.GetDemoData();
+                            UpdateUI();
+                        });
+                        updateTimer.Cancel();
+                    }
+                    else
+                    {
+                        if (data == null) data = new MainPageData();
+                        if (data.wanInfo == null) data.wanInfo = await RouterAPI.GetWANinfo();
+                        data.netRate = await RouterAPI.GetNetRate();
+                        data.cpuMemInfo = await RouterAPI.GetCpuMemInfo();
+                        data.clients = await RouterAPI.GetClients();
+                        data.devRate = await RouterAPI.GetDeviceRate();
+                        data.banList = await RouterAPI.FireWall.GetBanList();
+                        if (data.wlanInfo == null) data.wlanInfo = await RouterAPI.GetWLANInfo();
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.High, () => {
+                            UpdateUI();
+                        });
+                    }
+
                 }, updateSpan);
             }
         }
@@ -193,84 +211,85 @@ namespace AsusRouterApp
         private void UpdateUI()
         {
             //广域网及路由器信息
-            if(wanInfo!=null)
+            if(data.wanInfo !=null)
             {
-                textBlock_model.Text = wanInfo.model;
-                textBlock_title.Text = wanInfo.name;
-                textBlock_devName.Text = wanInfo.name;
-                textBlock_ipAdd.Text = wanInfo.ipaddr;
-                textBlock_state.Text = wanInfo.statusstr;
-                textBlock_ddns.Text = wanInfo.ddns;
+                textBlock_model.Text = data.wanInfo.model;
+                textBlock_title.Text = data.wanInfo.name;
+                textBlock_devName.Text = data.wanInfo.name;
+                textBlock_ipAdd.Text = data.wanInfo.ipaddr;
+                textBlock_state.Text = data.wanInfo.statusstr;
+                textBlock_ddns.Text = data.wanInfo.ddns;
                 grid_waninfo.Visibility = Visibility.Visible;
-                listview_wanInfo.DataContext = wanInfo;
+                listview_wanInfo.DataContext = data.wanInfo;
                 if (!App.ContactStart) button_pinContact.Visibility = Visibility.Visible;
             }
 
             //网络速率
-            if(netRate!=null)
+            if(data.netRate !=null)
             {
-                textBlock_rateWAN_tx.Text = (netRate.internet_tx / 1024 / 1024).ToString();
-                textBlock_rateWAN_rx.Text = (netRate.internet_rx / 1024 / 1024).ToString();
+                if (data.netSpeed == null) data.netSpeed = new Model.NetSpeed();
+                data.netSpeed.Update(data.netRate);
 
-                textBlock_rate5G_tx.Text = (netRate.wl5g_tx / 1024 / 1024).ToString();
-                textBlock_rate5G_rx.Text = (netRate.wl5g_rx / 1024 / 1024).ToString();
+                textBlock_rateWAN_tx.Text = data.netSpeed.uploadSpeed_wan_str;
+                textBlock_rateWAN_rx.Text = data.netSpeed.downloadSpeed_wan_str;
 
-                textBlock_rate2G_tx.Text = (netRate.wl2g_tx / 1024 / 1024).ToString();
-                textBlock_rate2G_rx.Text = (netRate.wl2g_rx / 1024 / 1024).ToString();
-                netRate = null;
+                textBlock_rate5G_rx.Text = data.netSpeed.uploadSpeed_wl5g_str;
+                textBlock_rate5G_tx.Text = data.netSpeed.downloadSpeed_wl5g_str;
+
+                textBlock_rate2G_rx.Text = data.netSpeed.uploadSpeed_wl2g_str;
+                textBlock_rate2G_tx.Text = data.netSpeed.downloadSpeed_wl2g_str;
+                
                 grid_netrate.Visibility = Visibility.Visible;
             }
 
             //客户端数量
-            if(clients!=null)
+            if(data.clients !=null)
             {
-                textBlock_wlNum.Text = (clients.WL2G.Count + clients.WL5G.Count).ToString();
-                textBlock_lanNum.Text = clients.LAN.Count.ToString();
+                textBlock_wlNum.Text = (data.clients.WL2G.Count + data.clients.WL5G.Count).ToString();
+                textBlock_lanNum.Text = data.clients.LAN.Count.ToString();
                 if (clientGroup == null)
                 {
-                    clientGroup = clients.GetGroup();
+                    clientGroup = data.clients.GetGroup();
                     this.itemcollectSource.Source = clientGroup;
                     ZoomOutView.ItemsSource = itemcollectSource.View.CollectionGroups;
                     ZoomInView.ItemsSource = itemcollectSource.View;
                 }
                 else
                 {
-                    clientGroup[0].AsyncList(clients.LAN);
-                    clientGroup[1].AsyncList(clients.WL5G);
-                    clientGroup[2].AsyncList(clients.WL2G);
+                    clientGroup[0].AsyncList(data.clients.LAN);
+                    clientGroup[1].AsyncList(data.clients.WL5G);
+                    clientGroup[2].AsyncList(data.clients.WL2G);
                 }
-                clients = null;
                 grid_state.Visibility = Visibility.Visible;
             }
 
             //CPU及内存占用情况
-            if(cpuMemInfo!=null)
+            if(data.cpuMemInfo !=null)
             {
-                long cpu_all = cpuMemInfo.cpu_usage.cpu1_total + cpuMemInfo.cpu_usage.cpu2_total;
-                long cpu_usage = cpuMemInfo.cpu_usage.cpu1_usage + cpuMemInfo.cpu_usage.cpu2_usage;
+                long cpu_all = data.cpuMemInfo.cpu_usage.cpu1_total + data.cpuMemInfo.cpu_usage.cpu2_total;
+                long cpu_usage = data.cpuMemInfo.cpu_usage.cpu1_usage + data.cpuMemInfo.cpu_usage.cpu2_usage;
                 progress_cpu.Maximum = cpu_all;
                 progress_cpu.Value = cpu_usage;
-                textBlock_cpu.Text = (cpu_usage * 100 / cpu_all).ToString("f1");
+                textBlock_cpu.Text = (cpu_usage * 100 / cpu_all).ToString("f2");
 
-                progress_mem.Maximum = cpuMemInfo.memory_usage.mem_total;
-                progress_mem.Value = cpuMemInfo.memory_usage.mem_used;
-                textBlock_mem.Text = (progress_mem.Value * 100 / progress_mem.Maximum).ToString("f1");
+                progress_mem.Maximum = data.cpuMemInfo.memory_usage.mem_total;
+                progress_mem.Value = data.cpuMemInfo.memory_usage.mem_used;
+                textBlock_mem.Text = (progress_mem.Value * 100 / progress_mem.Maximum).ToString("f2");
 
-                radial_cpu1.Maximum = cpuMemInfo.cpu_usage.cpu1_total;
-                radial_cpu1.Value = cpuMemInfo.cpu_usage.cpu1_usage;
-                radial_cpu2.Maximum = cpuMemInfo.cpu_usage.cpu2_total;
-                radial_cpu2.Value = cpuMemInfo.cpu_usage.cpu2_usage;
+                radial_cpu1.Maximum = data.cpuMemInfo.cpu_usage.cpu1_total;
+                radial_cpu1.Value = data.cpuMemInfo.cpu_usage.cpu1_usage;
+                radial_cpu2.Maximum = data.cpuMemInfo.cpu_usage.cpu2_total;
+                radial_cpu2.Value = data.cpuMemInfo.cpu_usage.cpu2_usage;
 
-                textBlock_cpu1.Text=(radial_cpu1.Value*100/ radial_cpu1.Maximum).ToString("f1");
-                textBlock_cpu2.Text = (radial_cpu2.Value * 100 / radial_cpu2.Maximum).ToString("f1");
-                cpuMemInfo = null;
+                textBlock_cpu1.Text=(radial_cpu1.Value*100/ radial_cpu1.Maximum).ToString("f2");
+                textBlock_cpu2.Text = (radial_cpu2.Value * 100 / radial_cpu2.Maximum).ToString("f2");
                 grid_cpu.Visibility = Visibility.Visible;
             }
 
             //更新客户端速率
-            if(devRate!=null&&clientGroup!=null)
+            if(data.devRate !=null&&clientGroup!=null)
             {
-                var macs=devRate.Keys.ToArray();
+                var macs= data.devRate.Keys.ToArray();
                 foreach (var mac in macs)
                 {
                     for (int i = 0; i < clientGroup.Count; i++)
@@ -279,30 +298,28 @@ namespace AsusRouterApp
                         {
                             if(mac== clientGroup[i].Clients[j].mac)
                             {
-                                clientGroup[i].Clients[j].UpdateRate(devRate[mac]);
+                                clientGroup[i].Clients[j].UpdateRate(data.devRate[mac]);
                                 break;
                             }
                         }
                     }
                 }
-                devRate = null;
             }
 
-            if(banList!=null&& clientGroup != null)
+            if(data.banList !=null&& clientGroup != null)
             {
                 for (int i = 0; i < clientGroup.Count; i++)
                 {
                     for (int j = 0; j < clientGroup[i].Clients.Count; j++)
                     {
-                        clientGroup[i].Clients[j].UpdateBanState(banList);
+                        clientGroup[i].Clients[j].UpdateBanState(data.banList);
                     }
                 }
-                banList = null;
             }
 
-            if(wlanInfo!=null)
+            if(data.wlanInfo !=null)
             {
-                listview_wlaninfo.DataContext = wlanInfo;
+                listview_wlaninfo.DataContext = data.wlanInfo;
             }
             progress_main.IsIndeterminate = false;
         }
@@ -378,13 +395,13 @@ namespace AsusRouterApp
         private void wl0_Toggled(object sender, RoutedEventArgs e)
         {
             var s = sender as ToggleSwitch;
-            if(wlanInfo != null) wlanInfo.wl0_enable = s.IsOn;
+            if(data.wlanInfo != null) data.wlanInfo.wl0_enable = s.IsOn;
         }
 
         private void wl1_Toggled(object sender, RoutedEventArgs e)
         {
             var s = sender as ToggleSwitch;
-            if (wlanInfo != null) wlanInfo.wl1_enable = s.IsOn;
+            if (data.wlanInfo != null) data.wlanInfo.wl1_enable = s.IsOn;
         }
 
         /// <summary>
@@ -410,22 +427,22 @@ namespace AsusRouterApp
         private async void SaveWiFiYes_Clicked(object sender, RoutedEventArgs e)
         {
             notification.Dismiss();
-            if (wlanInfo == null) return;
-            if (wlanInfo.wl0_ssid.Length == 0 || wlanInfo.wl1_ssid.Length == 0)
+            if (data.wlanInfo == null) return;
+            if (data.wlanInfo.wl0_ssid.Length == 0 || data.wlanInfo.wl1_ssid.Length == 0)
             {
-                notification.Show("请输入SSID");
+                notification.Show(Utils.AppResources.GetString("NullSSID"));
                 return;
             }
-            if (wlanInfo.wl0_wpa_psk.Length == 0 || wlanInfo.wl1_wpa_psk.Length == 0)
+            if (data.wlanInfo.wl0_wpa_psk.Length == 0 || data.wlanInfo.wl1_wpa_psk.Length == 0)
             {
-                notification.Show("请输入密码");
+                notification.Show(Utils.AppResources.GetString("NullPassword"));
                 return;
             }
-            var res = await RouterAPI.SetWlan(wlanInfo);
+            var res = await RouterAPI.SetWlan(data.wlanInfo);
             if (res)
-                notification.Show("WiFi设置保存成功");
+                notification.Show(Utils.AppResources.GetString("WiFiSetSuccess"));
             else
-                notificationError.Show("WiFi设置保存失败");
+                notificationError.Show(Utils.AppResources.GetString("WiFiSetError"));
         }
 
         /// <summary>
@@ -463,9 +480,9 @@ namespace AsusRouterApp
             notification.Dismiss();
             var res = await RouterAPI.Reboot();
             if(res)
-                notification.Show("路由器正在重启");
+                notification.Show(Utils.AppResources.GetString("RouterRebootSuccess"));
             else
-                notificationError.Show("路由器重启失败");
+                notificationError.Show(Utils.AppResources.GetString("RouterRebootError"));
         }
 
         /// <summary>
@@ -475,7 +492,7 @@ namespace AsusRouterApp
         /// <param name="e"></param>
         private async void PinContact_Click(object sender, RoutedEventArgs e)
         {
-            var res = await ContractUtils.AddRouter(wanInfo.mac, wanInfo.name);
+            var res = await ContractUtils.AddRouter(data.wanInfo.mac, data.wanInfo.name);
             if (res.res)
                 ContractUtils.PinContact(res.contact);
         }
@@ -496,12 +513,12 @@ namespace AsusRouterApp
                 case 0:
                     dataPackage.SetText(menu.Text);
                     Clipboard.SetContent(dataPackage);
-                    notification.Show("已复制到粘贴板", 2000);
+                    notification.Show(Utils.AppResources.GetString("CopyComplete"), 2000);
                     break;
                 case 1:
                     dataPackage.SetText(menu.Text);
                     Clipboard.SetContent(dataPackage);
-                    notification.Show("已复制到粘贴板", 2000);
+                    notification.Show(Utils.AppResources.GetString("CopyComplete"), 2000);
                     break;
                 case 2:
                     var dialog = new Control.ClientDialog(client);
@@ -556,12 +573,12 @@ namespace AsusRouterApp
                 if (file != null)
                 {
                     await FileIO.WriteTextAsync(file, json);
-                    notification.Show("数据导出成功", 1000);
+                    notification.Show(Utils.AppResources.GetString("ExportDataSuccess"), 1000);
                 }
             }
             catch (Exception)
             {
-                notificationError.Show("数据导出错误");
+                notificationError.Show(Utils.AppResources.GetString("ExportDataError"));
             }
         }
 
@@ -581,13 +598,13 @@ namespace AsusRouterApp
                 {
                     string json = await FileIO.ReadTextAsync(file);
                     Setting.Data.Load(json);
-                    notification.Show("数据导入成功", 1000);
+                    notification.Show(Utils.AppResources.GetString("LoadDataSuccess"), 1000);
                     clientGroup = null;
                 }
             }
             catch (Exception)
             {
-                notificationError.Show("数据导入错误");
+                notificationError.Show(Utils.AppResources.GetString("LoadDataError"));
             }
         }
     }
