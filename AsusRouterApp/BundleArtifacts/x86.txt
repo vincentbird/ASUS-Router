@@ -1,2 +1,2 @@
-MainPackage=C:\Users\wwb12\Source\Repos\ASUS-Router\AsusRouterApp\bin\x86\Release\AsusRouterApp_1.1.1.0_x86.appx
-SymbolPackage=C:\Users\wwb12\Source\Repos\ASUS-Router\AsusRouterApp\AppPackages\AsusRouterApp_1.1.1.0_Test\AsusRouterApp_1.1.1.0_x86.appxsym
+MainPackage=C:\Users\wwb12\Source\Repos\ASUS-Router\AsusRouterApp\bin\x86\Release\AsusRouterApp_1.0.2.0_x86.appx
+SymbolPackage=C:\Users\wwb12\Source\Repos\ASUS-Router\AsusRouterApp\AppPackages\AsusRouterApp_1.0.2.0_Test\AsusRouterApp_1.0.2.0_x86.appxsym

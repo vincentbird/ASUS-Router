@@ -1,7 +1,2 @@
-MainPackage=C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\bin\x64\Release\AsusRouterApp_1.0.1.0_x64.appx
-SymbolPackage=C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\AppPackages\AsusRouterApp_1.0.1.0_Test\AsusRouterApp_1.0.1.0_x64.appxsym
-ResourcePack=C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\bin\x64\Release\AsusRouterApp_1.0.1.0_language-zh-hans.appx
-ResourcePack=C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\bin\x64\Release\AsusRouterApp_1.0.1.0_scale-100.appx
-ResourcePack=C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\bin\x64\Release\AsusRouterApp_1.0.1.0_scale-125.appx
-ResourcePack=C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\bin\x64\Release\AsusRouterApp_1.0.1.0_scale-150.appx
-ResourcePack=C:\Users\wwb12\source\repos\ASUS-Router\AsusRouterApp\bin\x64\Release\AsusRouterApp_1.0.1.0_scale-400.appx
+MainPackage=C:\Users\wwb12\Source\Repos\ASUS-Router\AsusRouterApp\bin\x64\Release\AsusRouterApp_1.0.2.0_x64.appx
+SymbolPackage=C:\Users\wwb12\Source\Repos\ASUS-Router\AsusRouterApp\AppPackages\AsusRouterApp_1.0.2.0_Test\AsusRouterApp_1.0.2.0_x64.appxsym

@@ -1,1 +1,1 @@
-C:\Users\wwb12\Source\Repos\ASUS-Router\AsusRouterApp\bin\ARM\Release\Upload\AsusRouterApp_1.1.1.0\AsusRouterApp_1.1.1.0_x86_x64_arm.appxbundle
+C:\Users\wwb12\Source\Repos\ASUS-Router\AsusRouterApp\bin\ARM\Release\Upload\AsusRouterApp_1.0.2.0\AsusRouterApp_1.0.2.0_x86_x64_arm.appxbundle
